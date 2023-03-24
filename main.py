@@ -9,7 +9,7 @@ import json
 import schedule as sch
 
 # TelBotToken
-bot = tl.TeleBot('5592949844:AAHmd_tmD2A3R4PcSezEGmnNJOBzsAAor8M')
+bot = tl.TeleBot('Token')
 
 
 def get_inf():
