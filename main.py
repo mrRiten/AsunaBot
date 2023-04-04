@@ -1,6 +1,7 @@
 import datetime
 import threading
 import requests
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from bs4 import BeautifulSoup
 import telebot as tl
 from threading import Thread
@@ -9,18 +10,18 @@ import json
 import schedule as sch
 
 # TelBotToken
-bot = tl.TeleBot('Token')
+bot = tl.TeleBot('5592949844:AAHmd_tmD2A3R4PcSezEGmnNJOBzsAAor8M')
 
 
 def get_inf():
-
     # get URL
     Weather_URl = 'https://pogoda7.ru/prognoz/gorod943-Russia-Yaroslavskaya_oblast-Yaroslavl/1days/full'
     News_URL = 'https://news.mail.ru'
     EUR_RUB_URL = 'https://www.google.ru/search?q=курс+евро&newwindow=1&sxsrf=ALiCzsbmIKfsc07wLE9uI4bWbSIobDDIBw%3A1663183301779&source=hp&ei=xSkiY-X7K-iJrwTA0Ib4BA&iflsig=AJiK0e8AAAAAYyI31XS_1auoVsGnOhUq4cRcKIsjaDWN&oq=курс+евр&gs_lcp=Cgdnd3Mtd2l6EAEYADIJCCMQJxBGEIICMggIABCABBCxAzIICAAQgAQQsQMyCwgAEIAEELEDEIMBMggIABCABBCxAzIFCAAQgAQyCAgAEIAEELEDMggIABCABBCxAzIFCAAQgAQyBQgAEIAEOgcIIxDqAhAnOgQIIxAnOgsILhCxAxCDARDUAjoLCC4QgAQQxwEQrwE6CAguEIAEELEDOgsILhCABBCxAxCDAVC3AViROWDWQGgCcAB4AYABwwGIAZAGkgEDNy4ymAEAoAEBsAEK&sclient=gws-wiz'
     USD_RUB_URL = 'https://www.google.ru/search?q=курс+доллара&newwindow=1&sxsrf=ALiCzsZhuTfiBDkZ3oW2XvlDH5r1aE-r5Q%3A1662989007957&source=hp&ei=zzIfY7C5OOrJrgTrpYDICw&iflsig=AJiK0e8AAAAAYx9A37RprR8CGXkh12834Bi3o2qN2ErT&oq=курс+&gs_lcp=Cgdnd3Mtd2l6EAEYADIJCCMQJxBGEIICMgQIIxAnMgsIABCABBCxAxCDATILCAAQgAQQsQMQgwEyBQgAEIAEMggIABCABBCxAzIFCAAQgAQyCAgAEIAEELEDMgsIABCABBCxAxCDATILCAAQgAQQsQMQgwE6BwgjEOoCECc6CwguEIAEEMcBEK8BOggILhCxAxCDAToICAAQsQMQgwFQlw1YnRJglRloAXAAeAGAAcMBiAGjA5IBAzQuMZgBAKABAbABCg&sclient=gws-wiz'
     JPY_RUB_URL = 'https://www.google.ru/search?q=курс+йены&newwindow=1&sxsrf=AJOqlzWD96jS2WKtLBOeJ9hLg0aru6n39w%3A1677612906829&source=hp&ei=alf-Y7nxL-6krgTyzJOwBw&iflsig=AK50M_UAAAAAY_5leoYfJ1sMgHO-9JkTCM7yqAgVV6bP&oq=курс+ен&gs_lcp=Cgdnd3Mtd2l6EAMYATIFCAAQgAQyDQgAEIAEELEDEIMBEAoyDQgAEIAEELEDEIMBEAoyBwgAEIAEEAoyBwgAEIAEEAoyBwgAEIAEEAoyBwgAEIAEEAoyBwgAEIAEEAoyBwgAEIAEEAoyBwgAEIAEEAo6BwgjEOoCECc6DQguEMcBEK8BEOoCECc6BAgjECc6CwgAEIAEELEDEIMBOgsILhCABBCxAxCDAToICAAQsQMQgwE6CwguEIAEEMcBEK8BOg4ILhCvARDHARDUAhCABDoICAAQgAQQsQM6CggAEIAEELEDEApQtgtY_SVg5T5oAnAAeAGAAfgDiAHdCpIBBzYuNC0xLjGYAQCgAQGwAQo&sclient=gws-wiz'
-    headers = {'user-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.102 Safari/537.36 OPR/90.0.4480.100 (Edition Yx GX)'}
+    headers = {
+        'user-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.102 Safari/537.36 OPR/90.0.4480.100 (Edition Yx GX)'}
 
     # parsing weather
     full_page_Weather = requests.get(Weather_URl, headers=headers)
@@ -45,8 +46,9 @@ def get_inf():
     # parsing news Mail.ru
     full_page_News = requests.get(News_URL, headers=headers)
     soup_News = BeautifulSoup(full_page_News.content, 'html.parser')
-    news = soup_News.findAll('div', {'class': 'cols__wrapper', 'class': 'cols__column cols__column_small_percent-50 cols__column_medium_percent-33 cols__column_large_percent-33'})
-
+    news = soup_News.findAll('div', {'class': 'cols__wrapper',
+                                     'class': 'cols__column cols__column_small_percent-50 cols__column_medium_percent-33 cols__column_large_percent-33'})
+    news_links = soup_News.findAll('a', {'class': 'newsitem__title link-holder'})
     # assignment text from Mail.ru news
     news_output0 = news[0].text
     news_output1 = news[1].text
@@ -54,11 +56,29 @@ def get_inf():
     news_output3 = news[3].text
     news_output4 = news[4].text
     news_output5 = news[5].text
+    # get links from the news by 'href'
+    news_link0 = news_links[0].get('href')
+    news_link1 = news_links[1].get('href')
+    news_link2 = news_links[2].get('href')
+    news_link3 = news_links[3].get('href')
+    news_link4 = news_links[4].get('href')
+    news_link5 = news_links[5].get('href')
 
-    inf = f'🗓Сегодня {datetime.datetime.now().strftime("%Y-%d-%m")}'\
-        f'\n\nКурс Доллара: {ConvertUSD[0].text} рублей'\
-        f'\n💶Курс Евро: {ConvertEUR[0].text} рублей'\
-        f'\n💴Курс Йен: {ConvertJPY[0].text} рублей\n' \
+    inline_board = InlineKeyboardMarkup()
+    button1 = InlineKeyboardButton(text='🔍Новость 1', url=news_link0)
+    button2 = InlineKeyboardButton(text='🔍Новость 2', url=news_link1)
+    button3 = InlineKeyboardButton(text='🔍Новость 3', url=news_link2)
+    button4 = InlineKeyboardButton(text='🔍Новость 4', url=news_link3)
+    button5 = InlineKeyboardButton(text='🔍Новость 5', url=news_link4)
+    button6 = InlineKeyboardButton(text='🔍Новость 6', url=news_link5)
+    inline_board.row(button1, button2)
+    inline_board.row(button3, button4)
+    inline_board.row(button5, button6)
+
+    inf = f'🗓Сегодня {datetime.datetime.now().strftime("%Y-%d-%m")}' \
+          f'\n\n💵Курс Доллара: {ConvertUSD[0].text} рублей' \
+          f'\n💶Курс Евро: {ConvertEUR[0].text} рублей' \
+          f'\n💴Курс Йен: {ConvertJPY[0].text} рублей\n' \
           f'\n⛅Погода \n{weather_now[0].text}' \
           f'\n\n📰Новости:' \
           f'\n📌{news_output0}' \
@@ -75,7 +95,7 @@ def get_inf():
         print(f'Updated at {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}', file=file_obj)
     file_obj.close()
 
-    return inf
+    return [inf, inline_board]
 
 
 # Work bot code
@@ -85,19 +105,52 @@ def main_inf():
     with open('data.json', 'r') as file_obj:
         data_from_json = json.load(file_obj)
     # get user id for send message
-    try:
-        for user in data_from_json:
-            name = data_from_json[f'{user}']['username']
-            schedule_text = data_from_json[f'{user}']['schedule_text']
-            bot.send_message(user, f'{name}, будте в курсе событий!\n\n{get_inf()}\n\n📑Ваше расписание:\n{schedule_text}')
+    for user in data_from_json:
+        name = data_from_json[f'{user}']['username']
+        schedule_text = data_from_json[f'{user}']['schedule_text']
+        spam = data_from_json[f'{user}']['spam']
+        if spam == 'True':
+            try:
+                bot.send_message(user,
+                                 f'{name}, будте в курсе событий!\n\n{get_inf()[0]}\n\n📑Ваше расписание:\n{schedule_text}'
+                                 f'\n\nДля отключения ежедневной рассылки введите /stop_spam',
+                                 reply_markup=get_inf()[1])
 
-            # write logs
-            with open('logs.txt', 'a+') as logs_obj:
-                print(f'{user} - bot send mes at {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}', file=logs_obj)
-                logs_obj.close()
+                # write logs
+                with open('logs.txt', 'a+') as logs_obj:
+                    print(f'{user} - bot send mes at {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}',
+                          file=logs_obj)
+                    logs_obj.close()
+            except Exception as e:
+                with open('logs.txt', 'a+') as logs_obj:
+                    print(f'{e} - {user}, at -{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}', file=logs_obj)
+                    logs_obj.close()
+        else:
+            pass
+
+
+# send message for one user
+def work_mes_inf(message):
+    # open json
+    user_id = message.from_user.id
+    with open('data.json', 'r') as file_obj:
+        data_from_json = json.load(file_obj)
+    # get user id for send message
+    name = data_from_json[f'{user_id}']['username']
+    schedule_text = data_from_json[f'{user_id}']['schedule_text']
+    try:
+        bot.send_message(user_id,
+                         f'{name}, будте в курсе событий!\n\n{get_inf()[0]}\n\n📑Ваше расписание:\n{schedule_text}',
+                         reply_markup=get_inf()[1])
+
+        # write logs
+        with open('logs.txt', 'a+') as logs_obj:
+            print(f'{user_id} - bot send message at {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}',
+                  file=logs_obj)
+            logs_obj.close()
     except Exception as e:
         with open('logs.txt', 'a+') as logs_obj:
-            print(f'{e} - {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}', file=logs_obj)
+            print(f'{e} - {user_id}, at -{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}', file=logs_obj)
             logs_obj.close()
 
 
@@ -112,6 +165,7 @@ def create_th(message):
 def main_mes(message):
     sch.every().day.at('09:10').do(main_inf)
     sch.every().day.at('20:10').do(main_inf)
+    sch.every().day.at('21:50').do(main_inf)
     while True:
         sch.run_pending()
         time.sleep(1)
@@ -158,7 +212,8 @@ def add_note_end(message):
         data_from_json[f'{user_id}']['note_text'] += f'\n{note_text}'
         with open('data.json', 'w') as file_obj:
             json.dump(data_from_json, file_obj, indent=4, ensure_ascii=False)
-        bot.send_message(message.chat.id, f'Хорошо, я добавила заметку:\n "{data_from_json[f"{user_id}"]["note_text"]}" ')
+        bot.send_message(message.chat.id,
+                         f'Хорошо, я добавила заметку:\n "{data_from_json[f"{user_id}"]["note_text"]}" ')
         keyboard_work(message)
     else:
         bot.send_message(message.chat.id, f'Пожалуйста используйте только буквы, цифры и спец.символы')
@@ -213,7 +268,8 @@ def add_schedule_end(message):
         data_from_json[f'{user_id}']['schedule_text'] = f'{schedule_text}'
         with open('data.json', 'w') as file_obj:
             json.dump(data_from_json, file_obj, indent=4, ensure_ascii=False)
-        bot.send_message(message.chat.id, f'Хорошо, я добавила изменила расписание:\n "{data_from_json[f"{user_id}"]["schedule_text"]}" ')
+        bot.send_message(message.chat.id,
+                         f'Хорошо, я добавила изменила расписание:\n "{data_from_json[f"{user_id}"]["schedule_text"]}" ')
         keyboard_work(message)
     else:
         bot.send_message(message.chat.id, f'Пожалуйста используйте только буквы, цифры и спец.символы')
@@ -253,7 +309,8 @@ def edit_appeal_end(message):
         data_from_json[f'{user_id}']['username'] = f'{appeal_text}'
         with open('data.json', 'w') as file_obj:
             json.dump(data_from_json, file_obj, indent=4, ensure_ascii=False)
-        bot.send_message(message.chat.id, f'Хорошо, я теперь я буду обращаться к Вам: "{data_from_json[f"{user_id}"]["username"]}" ')
+        bot.send_message(message.chat.id,
+                         f'Хорошо, я теперь я буду обращаться к Вам: "{data_from_json[f"{user_id}"]["username"]}" ')
         keyboard_work(message)
     else:
         bot.send_message(message.chat.id, f'Пожалуйста используйте только буквы, цифры и спец.символы')
@@ -286,7 +343,8 @@ def keyboard_notes(message):
     keyboard5 = tl.types.ReplyKeyboardMarkup(True, True, True)
     keyboard5.row('➕Добавить', '➖Удалить')
     bot.send_message(message.chat.id, 'Вы можете добавить или удалить заметку.\n'
-                                      'Прошу обратить внимание, что на кажго пользователя есть всего один слот!', reply_markup=keyboard5)
+                                      'Прошу обратить внимание, что на кажго пользователя есть всего один слот!',
+                     reply_markup=keyboard5)
 
 
 # keyboard for schedule
@@ -294,14 +352,15 @@ def keyboard_schedule(message):
     keyboard5 = tl.types.ReplyKeyboardMarkup(True, True, True)
     keyboard5.row('➕Изменить', '➖Убрать')
     bot.send_message(message.chat.id, 'Вы можете изменить или убрать раписание.\n'
-                                      'Прошу обратить внимание, что на кажго пользователя есть всего один слот!', reply_markup=keyboard5)
+                                      'Прошу обратить внимание, что на кажго пользователя есть всего один слот!',
+                     reply_markup=keyboard5)
 
 
 # message handler
 # start mes
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    bot.send_message(message.chat.id, get_inf())
+    bot.send_message(message.chat.id, get_inf()[0])
     bot.send_message(message.chat.id, "Привет ✌, для корректной работы бота введите /reg")
 
 
@@ -313,7 +372,8 @@ def start_message(message):
     bot.send_message(message.chat.id, "Бот запущен и создал поток работы")
     # write logs
     with open('logs.txt', 'a+') as logs_obj:
-        print(f'{message.from_user.id} - using admin func at {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}', file=logs_obj)
+        print(f'{message.from_user.id} - using admin func at {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}',
+              file=logs_obj)
         logs_obj.close()
 
 
@@ -328,10 +388,11 @@ def start_message(message):
     username = message.from_user.username
     schedule_text = 'Пусто'
     note_text = ''
+    spam = 'True'
     # check user.id
     if str(user_id) not in data_from_json:
         data_from_json[user_id] = {"username": username, "schedule_text": schedule_text,
-                                   "note_text": note_text}
+                                   "note_text": note_text, "spam": spam}
     # append user in json
     with open('data.json', 'w') as file_obj:
         json.dump(data_from_json, file_obj, indent=4, ensure_ascii=False)
@@ -346,11 +407,39 @@ def start_message(message):
     print(threading.active_count())
 
 
+# func for stopping spam messages
+@bot.message_handler(commands=['stop_spam'])
+def stop_spam(message):
+    with open('data.json', 'r') as file_obj:
+        data_from_json = json.load(file_obj)
+    # get user`s inf
+    user_id = message.from_user.id
+    name = data_from_json[f'{user_id}']['username']
+    data_from_json[f'{user_id}']['spam'] = "False"
+    with open('data.json', 'w') as file_obj:
+        json.dump(data_from_json, file_obj, indent=4, ensure_ascii=False)
+    bot.send_message(message.chat.id, f'{name}, я установила значение spam на {data_from_json[f"{user_id}"]["spam"]}')
+
+
+# func for starting spam messages
+@bot.message_handler(commands=['start_spam'])
+def start_spam(message):
+    with open('data.json', 'r') as file_obj:
+        data_from_json = json.load(file_obj)
+    # get user`s inf
+    user_id = message.from_user.id
+    name = data_from_json[f'{user_id}']['username']
+    data_from_json[f'{user_id}']['spam'] = "True"
+    with open('data.json', 'w') as file_obj:
+        json.dump(data_from_json, file_obj, indent=4, ensure_ascii=False)
+    bot.send_message(message.chat.id, f'{name}, я установила значение spam на {data_from_json[f"{user_id}"]["spam"]}')
+
+
 @bot.message_handler(content_types=['text'])
 def main_message(message):
     # get inf by user
     if message.text == '📰Информация':
-        bot.send_message(message.chat.id, get_inf())
+        work_mes_inf(message)
         keyboard_work(message)
     # report
     elif message.text == '📋Сводка':
@@ -359,7 +448,8 @@ def main_message(message):
                                           ' Что я могу?\nДва раза в день я автоматически высылаю Вам сжатую информацию, что бы Вы были в курсе всех основных событий.'
                                           ' Так же я могу хранить Выши заметки и расписание, которое Вы можете в любой момент изменить или удалить.\n'
                                           'Спасибо, что Вы доверились именно мне. В бедущем мой создатель добавит ещё много полезных функций!😸')
-        bot.send_message(message.chat.id, 'Кстати один из переводов моего имени(Asuna) - "завтра", очень символьчно, не так ли?')
+        bot.send_message(message.chat.id,
+                         'Кстати один из переводов моего имени(Asuna) - "завтра", очень символьчно, не так ли?')
     # setting
     elif message.text == '⚙Настройка':
         keyboard_setting(message)
@@ -387,5 +477,10 @@ def main_message(message):
         watch_schedule(message)
 
 
-bot.polling()
-print(threading.active_count())
+try:
+    bot.infinity_polling()
+    run = input('Run - Yes/No')
+    print(threading.active_count())
+except Exception as _ex:
+    print(_ex)
+    time.sleep(15)
